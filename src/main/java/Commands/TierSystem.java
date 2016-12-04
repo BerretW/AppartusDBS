@@ -45,17 +45,17 @@ public class TierSystem {
             return;
         }
         if (GetPlayerLevel(TargetPlayer) <= 29){
-            SrcPlayer.sendMessage(Text.of(TextColors.RED,"Tebou vybraný hráč nemá dost vysokou úroveň aby se mohl naučit tento blok"));
+            SrcPlayer.sendMessage(Text.of(TextColors.RED,"Tebou vybrany hrac nema dost vysokou uroven aby se mohl naucit tento blok"));
 
             return;
         }
-        SrcPlayer.sendMessage(Text.of(TextColors.BLUE,"Naučení tohoto předmětu stálo hráče: " + Target + ", " + tutorial.BlockLearnLevel + "Levelů."));
+        SrcPlayer.sendMessage(Text.of(TextColors.BLUE,String.format("Naučení tohoto předmětu stálo hráče: %1, %2 Levelů.",Target,tutorial.BlockLearnLevel)));
 
-        tutorial.runConsoleCommand("xp "+(GetPlayerLevel(TargetPlayer) - 10) +"L " + Target);
+        tutorial.runConsoleCommand("xp -"+tutorial.BlockLearnLevel +"L " + Target);
 
         Command = Command.replace("$perm",tutorial.AllowPermission + Block);
         tutorial.runConsoleCommand(Command);
-        SrcPlayer.sendMessage(Text.of("Naučil jsi hráče " + Target + " používat blok " + Block));
+        SrcPlayer.sendMessage(Text.of(String.format("Naučil jsi hráče %1 používat blok %2",Target,Block)));
 
         Sponge.getServer().getConsole().sendMessage(Text.of("Hrac " + SrcPlayer.getName() + " naucil hrace " + Target + " pouzivat blok " + Block));
         tutorial.PermAction.get(line).set(1,null);

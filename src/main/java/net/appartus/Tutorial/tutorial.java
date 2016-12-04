@@ -36,8 +36,8 @@ public class tutorial {
     public static String DebugerPermission = "appartus.debuger";
     public static String PermCommand = "pm users $user set permission $perm";
     public static String TierCommand = "pm users $user group add $tier";
-    public static double BlockLearnLevel = 10;
-    public static double TierLearnLevel = 10;
+    public static int BlockLearnLevel = 10;
+    public static int TierLearnLevel = 10;
 
     @Inject
     Game game;
