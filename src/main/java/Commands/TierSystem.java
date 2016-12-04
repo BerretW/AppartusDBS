@@ -26,7 +26,7 @@ public class TierSystem {
 
     }
 
-    public void learnPlayerBlock(Player SrcPlayer){
+    private void learnPlayerBlock(Player SrcPlayer){
         int line = GetUserLine(SrcPlayer);
         String Target = tutorial.PermAction.get(line).get(1);
         String Block = tutorial.PermAction.get(line).get(2);
@@ -49,9 +49,9 @@ public class TierSystem {
 
             return;
         }
-        SrcPlayer.sendMessage(Text.of(TextColors.BLUE,"Naučení tohoto předmětu stálo hráče: " + Target + " 30Levelů."));
+        SrcPlayer.sendMessage(Text.of(TextColors.BLUE,"Naučení tohoto předmětu stálo hráče: " + Target + ", " + tutorial.BlockLearnLevel + "Levelů."));
 
-        tutorial.runConsoleCommand("xp 0L " + Target);
+        tutorial.runConsoleCommand("xp "+(GetPlayerLevel(TargetPlayer) - 10) +"L " + Target);
 
         Command = Command.replace("$perm",tutorial.AllowPermission + Block);
         tutorial.runConsoleCommand(Command);
@@ -64,17 +64,17 @@ public class TierSystem {
     }
 
 
-    public int GetPlayerLevel(Player player){
+    private int GetPlayerLevel(Player player){
         //Integer x = 20;
         //player.get(Keys.EXPERIENCE_LEVEL).get()= x;
         return player.get(Keys.EXPERIENCE_LEVEL).get();
     }
 
-    public int GetUserLine (Player player){
+    private int GetUserLine (Player player){
         int x = 0;
         String UserName = player.getName() ;
         if(!UserExist(UserName)){
-            ArrayList<String> inner = new ArrayList<String>();
+            ArrayList<String> inner = new ArrayList<>();
             inner.add(0,UserName);
             inner.add(1,null);
             inner.add(2,null);
@@ -94,7 +94,7 @@ public class TierSystem {
     }
 
 
-    public boolean UserExist(String PlayerName){
+    private boolean UserExist(String PlayerName){
         if (tutorial.PermAction.size() == 0) return false;
         for (int i = 0; i < tutorial.PermAction.size(); i++) {
 
@@ -105,7 +105,7 @@ public class TierSystem {
     }
 
 
-    public boolean CanDo(Player player,String Block){
+    private boolean CanDo(Player player,String Block){
         String[] Block_AllInfo = Block.split(":");
         String Block_Mod = Block_AllInfo[0];
         String Block_Type = Block_AllInfo[1];
@@ -144,9 +144,9 @@ public class TierSystem {
             String TargetPlayerInfo = event.getTargetEntity().toString();
 
             if((event.getTargetEntity() instanceof Player)) {
-                Player TargetedPlayer = null;
+                Player TargetedPlayer;
                 String[] TargetPlayerName = TargetPlayerInfo.split("\\['");
-                String Target_Player_Name = TargetPlayerName[1].split("'")[0].toString();
+                String Target_Player_Name = TargetPlayerName[1].split("'")[0];
                 TargetedPlayer = Sponge.getServer().getPlayer(Target_Player_Name).get();
 
                 //player.sendMessage(Text.of(tutorial.PermAction.size()));
@@ -173,8 +173,8 @@ public class TierSystem {
 
     @Listener
     public void getTargetBlockName (InteractBlockEvent.Secondary event, @First Player player){
-        int line = 0;
-        String TargetedBlock = null;
+        int line;
+        String TargetedBlock;
         String Block_AllInfo = event.getTargetBlock().getState().getName();
         String Block_Type = APPermBlock.Parse_Block_Name(Block_AllInfo);
         String Block_Mod = APPermBlock.Parse_Block_Mod(Block_AllInfo);
