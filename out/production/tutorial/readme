@@ -2,7 +2,6 @@ CZ:
 Použité permise:
 appartus.debuger = Uživatel s touto permisí může používat příkazy Appartusu a jeho funkce
 appartus.block.* = Permise důležitá pro samotné blokování bloků ve hře
-appartus.allow.* = Permise která dokáže povolit opřesňujíci blok
 
 Příkazy:
 /debugmode = Přepíná mezi režimy, detail bloku, permise pro daný blok a vypnuto. Funguje globálně pro všechny debugery najednou.

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="AppartusBDS">
+    <output-path>$USER_HOME$/AppData/Roaming/.minecraft/mods</output-path>
+    <root id="archive" name="AppartusBDS.jar">
+      <element id="module-output" name="tutorial_main" />
+    </root>
+  </artifact>
+</component>
