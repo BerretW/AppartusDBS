@@ -17,6 +17,7 @@ import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
 
 /**
  * Created by Alois on 03.12.2016.
+ * TierSystem class
  */
 
 public class TierSystem {
@@ -31,38 +32,46 @@ public class TierSystem {
         String Target = tutorial.PermAction.get(line).get(1);
         String Block = tutorial.PermAction.get(line).get(2);
 
-        if(tutorial.PermAction.get(line).get(1) == "null") {
-            SrcPlayer.sendMessage(Text.of("Nemáš vybraného hráče!"));
+        if(tutorial.PermAction.get(line).get(1) == null) {
+            SrcPlayer.sendMessage(Text.of(TextColors.RED,tutorial.NotSelectedPlayer));
+            ClearSelection(line);
             return;
         }
-        if(tutorial.PermAction.get(line).get(2) == "null") {
-            SrcPlayer.sendMessage(Text.of("Nemáš vybraný blok!"));
+        if(tutorial.PermAction.get(line).get(2) == null) {
+            SrcPlayer.sendMessage(Text.of(TextColors.RED,tutorial.NotSelectedBlock));
+            ClearSelection(line);
             return;
         }
 
         Player TargetPlayer = Sponge.getServer().getPlayer(tutorial.PermAction.get(line).get(1)).get();
 
-        if (GetPlayerLevel(TargetPlayer) <= tutorial.BlockLearnLevel){
-            SrcPlayer.sendMessage(Text.of(TextColors.RED,"Tebou vybrany hrac nema dost vysokou uroven aby se mohl naucit tento blok"));
+        if(TargetPlayer.hasPermission(tutorial.AllowPermission + Block)){
+            SrcPlayer.sendMessage(Text.of(TextColors.RED,tutorial.AlreadyKnow));
             return;
         }
 
+        if (GetPlayerLevel(TargetPlayer) <= tutorial.BlockLearnLevel){
+            SrcPlayer.sendMessage(Text.of(TextColors.RED,String.format(tutorial.LowLevel, Target, GetPlayerLevel(TargetPlayer), tutorial.BlockLearnLevel)));
+            return;
+        }
+
+
         String Command = tutorial.PermCommand.replace("$user",Target);
         Command = Command.replace("$perm",tutorial.AllowPermission + Block);
-
-        SrcPlayer.sendMessage(Text.of(TextColors.BLUE,String.format("Naučení tohoto předmětu stálo hráče: %s, %s Levelů.",Target,tutorial.BlockLearnLevel)));
-
-        tutorial.runConsoleCommand("xp -"+tutorial.BlockLearnLevel +"L " + Target);
         tutorial.runConsoleCommand(Command);
 
-        SrcPlayer.sendMessage(Text.of(String.format("Naučil jsi hráče %s používat blok %s",Target,Block)));
-        Sponge.getServer().getConsole().sendMessage(Text.of("Hrac " + SrcPlayer.getName() + " naucil hrace " + Target + " pouzivat blok " + Block));
+        tutorial.runConsoleCommand("xp -"+tutorial.BlockLearnLevel +"L " + Target);
 
-        tutorial.PermAction.get(line).set(1,"null");
-        tutorial.PermAction.get(line).set(2,"null");
+        SrcPlayer.sendMessage(Text.of(TextColors.BLUE,String.format(tutorial.LernBlockPlayer ,Target,Block,tutorial.BlockLearnLevel)));
+        //Sponge.getServer().getConsole().sendMessage(Text.of("Hrac " + SrcPlayer.getName() + " naucil hrace " + Target + " pouzivat blok " + Block));
+
+        ClearSelection(line);
     }
 
-
+    private void ClearSelection(int Line){
+        tutorial.PermAction.get(Line).set(1,null);
+        tutorial.PermAction.get(Line).set(2,null);
+    }
     private int GetPlayerLevel(Player player){
         return player.get(Keys.EXPERIENCE_LEVEL).get();
     }
@@ -73,11 +82,11 @@ public class TierSystem {
         if(!UserExist(UserName)){
             ArrayList<String> inner = new ArrayList<>();
             inner.add(0,UserName);
-            inner.add(1,"null");
-            inner.add(2,"null");
+            inner.add(1,null);
+            inner.add(2,null);
             tutorial.PermAction.add(inner);
 
-            player.sendMessage(Text.of("Byl jsi pridan na seznam" ));
+            //player.sendMessage(Text.of("Byl jsi pridan na seznam" ));
         }
 
         for (int i = 0; i < tutorial.PermAction.size(); i++) {
@@ -102,37 +111,7 @@ public class TierSystem {
     }
 
 
-    private boolean CanDo(Player player,String Block){
-        String[] Block_AllInfo = Block.split(":");
-        String Block_Mod = Block_AllInfo[0];
-        String Block_Type = Block_AllInfo[1];
-        String Block_Info = null;
 
-        if (Block_AllInfo.length ==3) Block_Info = Block_AllInfo[2];
-
-        if (player.getItemInHand(MAIN_HAND).toString().contains(tutorial.TierTool)) {
-            if (player.hasPermission(tutorial.BlockPermission + "." + Block_Mod)){
-                if (!player.hasPermission(tutorial.AllowPermission + "." + Block_Mod)) {
-                    player.sendMessage(Text.of("Nemáš oprávnění učit kohokoliv s tímto blokem"));
-                    return false;
-                }
-            }
-            if (player.hasPermission(tutorial.BlockPermission  + Block_Mod + ":" + Block_Type)){
-                if (!player.hasPermission(tutorial.AllowPermission  + Block_Mod + ":" + Block_Type)) {
-                    player.sendMessage(Text.of("Nemáš oprávnění učit kohokoliv s tímto blokem"));
-                    return false;
-                }
-            }
-            if (player.hasPermission(tutorial.BlockPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info)){
-                if (!player.hasPermission(tutorial.AllowPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info)) {
-                    player.sendMessage(Text.of("Nemáš oprávnění učit kohokoliv s tímto blokem"));
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
 
     @Listener
     public void getTargetPlayerName (InteractEntityEvent.Primary event, @First Player player){
@@ -151,10 +130,10 @@ public class TierSystem {
 
                 tutorial.PermAction.get(line).set(1, Target_Player_Name);
 
-                player.sendMessage(Text.of("Vybral jsi hráče: " + tutorial.PermAction.get(line).get(1)));
+                player.sendMessage(Text.of(TextColors.AQUA,String.format(tutorial.SelectedPlayer,tutorial.PermAction.get(line).get(1))));
 
 
-                TargetedPlayer.sendMessage(Text.of("Byl jsi vybrán hráčem " + player.getName() + "."));
+                TargetedPlayer.sendMessage(Text.of(TextColors.AQUA,String.format( tutorial.SelectedByPlayer, player.getName())));
                 learnPlayerBlock(player);
 
             }
@@ -165,12 +144,16 @@ public class TierSystem {
 
     @Listener
     public void getTargetBlockName (InteractBlockEvent.Primary event, @First Player player){
+
         int line;
         String TargetedBlock;
         String Block_AllInfo = event.getTargetBlock().getState().getName();
-        String Block_Type = APPermBlock.Parse_Block_Name(Block_AllInfo);
-        String Block_Mod = APPermBlock.Parse_Block_Mod(Block_AllInfo);
-        String Block_Info = APPermBlock.Parse_Block_Info(Block_AllInfo);
+        String Block_Type = tutorial.Parse_Block_Name(Block_AllInfo);
+        String Block_Mod = tutorial.Parse_Block_Mod(Block_AllInfo);
+        String Block_Info = tutorial.Parse_Block_Info(Block_AllInfo);
+
+        //if(APPermBlock.cantDO(player,Block_AllInfo)) return;
+
         //player.sendMessage(Text.of(String.format("Vybral jsi blok %s",Block_Mod)));
         //player.sendMessage(Text.of(String.format("Vybral jsi blok %s",Block_Type)));
         //player.sendMessage(Text.of(String.format("Vybral jsi blok %s",Block_Info)));
@@ -178,10 +161,10 @@ public class TierSystem {
         TargetedBlock = Block_Mod + ":" + Block_Type + ":" + Block_Info;
         if (Block_Info == null) TargetedBlock = Block_Mod + ":" + Block_Type;
 
-        if(CanDo(player,TargetedBlock)) {
+        if(!tutorial.cantDO(player,TargetedBlock,tutorial.DenyPermToLearn)) {
             line = GetUserLine(player);
             tutorial.PermAction.get(line).set(2, TargetedBlock);
-            player.sendMessage(Text.of("Vybral jsi blok " + tutorial.PermAction.get(line).get(2)));
+            player.sendMessage(Text.of(TextColors.AQUA,String.format(tutorial.SelectedBlock, tutorial.PermAction.get(line).get(2))));
             learnPlayerBlock(player);
         }
     }

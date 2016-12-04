@@ -17,6 +17,8 @@ import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -26,9 +28,9 @@ import java.util.logging.Logger;
 
 public class tutorial {
 
-    public static List<String> PermDebuger = new ArrayList<String>();
-    public static List<String> DetailDebuger = new ArrayList<String>();
-    public static ArrayList<ArrayList<String>> PermAction = new ArrayList<ArrayList<String>>();
+    public static List<String> PermDebuger = new ArrayList<>();
+    public static List<String> DetailDebuger = new ArrayList<>();
+    public static ArrayList<ArrayList<String>> PermAction = new ArrayList<>();
     public static String DebugTool = "item.carrotOnAStick";
     public static String TierTool = "item.shears";
     public static String BlockPermission = "appartus.block.";
@@ -38,6 +40,19 @@ public class tutorial {
     public static String TierCommand = "pm users $user group add $tier";
     public static int BlockLearnLevel = 10;
     public static int TierLearnLevel = 10;
+
+    public static String DenyPerm = "Tvoje trida ma zakazany tento predmet";
+    public static String DenyPermNeeded = "Pro povoleni tohoto predmetu je potreba jedna z techto permisi:";
+    public static String DenyPermToLearn = "Nemas opravneni kohokoliv ucit s timto blokem";
+    public static String SelectedPlayer = "Vybral jsi hráče: %s";
+    public static String SelectedBlock = "Vybral jsi blok: %s";
+    public static String SelectedByPlayer = "Byl jsi vybrán hráčem: %s";
+    public static String AlreadyKnow = "Vybraný hráč již tento předmět může používat.";
+    public static String LowLevel = "Hrac %s, ma moc nizky level %s. Pro tuto akci je treba aby měl %s";
+    public static String NotSelectedPlayer = "Nemáš vybraného hráče";
+    public static String NotSelectedBlock = "Nemáš vybraný blok";
+    public static String LernBlockPlayer = "Naučil jsi hráče %s používat blok %s, stálo ho to %s Levelů";
+
 
     @Inject
     Game game;
@@ -98,6 +113,86 @@ public class tutorial {
 
     public static void runConsoleCommand(String Command){
         Sponge.getCommandManager().process(Sponge.getServer().getConsole(), Command);
+    }
+
+    public static boolean cantDO(Player player, String BlockInfo, String Deny){
+        String Block_AllInfo = BlockInfo;
+        String Block_Type = Parse_Block_Name(Block_AllInfo);
+        String Block_Mod = Parse_Block_Mod(Block_AllInfo);
+        String Block_Info = Parse_Block_Info(Block_AllInfo);
+
+        if(player.hasPermission(tutorial.BlockPermission + Block_Mod)) {
+            if(player.hasPermission(tutorial.AllowPermission + Block_Mod)) return false;
+            if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":" + Block_Type)) return false;
+            if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info)) return false;
+            player.sendMessage(Text.of(TextColors.RED,Deny));
+
+            if(tutorial.PermDebuger.contains(player.getName())) {
+                player.sendMessage(Text.of(tutorial.DenyPermNeeded));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + ":" + Block_Type));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + ":" + Block_Mod + ":" + Block_Type + ":" + Block_Info));
+            }
+
+            return true;
+        }
+
+        if(player.hasPermission(tutorial.BlockPermission + Block_Mod + ":" + Block_Type)) {
+            if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":"+ Block_Type)) return false;
+            if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":"+ Block_Type + ":" + Block_Info)) return false;
+            player.sendMessage(Text.of(TextColors.RED,Deny));
+
+            if(tutorial.PermDebuger.contains(player.getName())) {
+                player.sendMessage(Text.of(tutorial.DenyPermNeeded));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod ));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + ":" + Block_Type ));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info));
+            }
+
+            return true;
+        }
+
+        if(player.hasPermission(tutorial.BlockPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info)) {
+            if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info)) return false;
+            player.sendMessage(Text.of(TextColors.RED,Deny));
+
+            if(tutorial.PermDebuger.contains(player.getName())) {
+                player.sendMessage(Text.of(tutorial.DenyPermNeeded));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + ":" + Block_Type));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info));
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public static String Parse_Block_Name(String BlockName){
+        String[] Parse_Block_Name = BlockName.split("\\[");
+        String[] Parse_Block_Type = Parse_Block_Name[0].split(":");
+        String Block_Type = Parse_Block_Type[1];
+        return Block_Type;
+    }
+    public static String Parse_Block_Mod (String BlockName){
+        String[] Parse_Block_Mod = BlockName.split(":");
+        String Block_Mod = Parse_Block_Mod[0];
+        return Block_Mod;
+    }
+    public static String Parse_Block_Info (String BlockName){
+        String Block_Info = null;
+        if(BlockName.contains("type=")) {
+            String[] Parse_Block_Info = BlockName.split("type=");
+            Block_Info = Parse_Block_Info[1].substring(0,(Parse_Block_Info[1].length()-1));
+            return Block_Info;
+        }
+        if(BlockName.contains("variant=")) {
+            String[] Parse_Block_Info = BlockName.split("variant=");
+            Block_Info = Parse_Block_Info[1].substring(0,(Parse_Block_Info[1].length()-1));
+            return Block_Info;
+        }
+        return Block_Info;
     }
 }
 
