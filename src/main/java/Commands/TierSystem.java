@@ -30,43 +30,40 @@ public class TierSystem {
         int line = GetUserLine(SrcPlayer);
         String Target = tutorial.PermAction.get(line).get(1);
         String Block = tutorial.PermAction.get(line).get(2);
-        String Command = tutorial.PermCommand.replace("$user",Target);
+
+        if(tutorial.PermAction.get(line).get(1) == "null") {
+            SrcPlayer.sendMessage(Text.of("Nemáš vybraného hráče!"));
+            return;
+        }
+        if(tutorial.PermAction.get(line).get(2) == "null") {
+            SrcPlayer.sendMessage(Text.of("Nemáš vybraný blok!"));
+            return;
+        }
+
         Player TargetPlayer = Sponge.getServer().getPlayer(tutorial.PermAction.get(line).get(1)).get();
 
-
-        if(tutorial.PermAction.get(line).get(1) == null) {
-            SrcPlayer.sendMessage(Text.of("Nemáš vybraného hráče!"));
-
-            return;
-        }
-        if(tutorial.PermAction.get(line).get(2) == null) {
-            SrcPlayer.sendMessage(Text.of("Nemáš vybraný blok!"));
-
-            return;
-        }
-        if (GetPlayerLevel(TargetPlayer) <= 29){
+        if (GetPlayerLevel(TargetPlayer) <= tutorial.BlockLearnLevel){
             SrcPlayer.sendMessage(Text.of(TextColors.RED,"Tebou vybrany hrac nema dost vysokou uroven aby se mohl naucit tento blok"));
-
             return;
         }
-        SrcPlayer.sendMessage(Text.of(TextColors.BLUE,String.format("Naučení tohoto předmětu stálo hráče: %1, %2 Levelů.",Target,tutorial.BlockLearnLevel)));
+
+        String Command = tutorial.PermCommand.replace("$user",Target);
+        Command = Command.replace("$perm",tutorial.AllowPermission + Block);
+
+        SrcPlayer.sendMessage(Text.of(TextColors.BLUE,String.format("Naučení tohoto předmětu stálo hráče: %s, %s Levelů.",Target,tutorial.BlockLearnLevel)));
 
         tutorial.runConsoleCommand("xp -"+tutorial.BlockLearnLevel +"L " + Target);
-
-        Command = Command.replace("$perm",tutorial.AllowPermission + Block);
         tutorial.runConsoleCommand(Command);
-        SrcPlayer.sendMessage(Text.of(String.format("Naučil jsi hráče %1 používat blok %2",Target,Block)));
 
+        SrcPlayer.sendMessage(Text.of(String.format("Naučil jsi hráče %s používat blok %s",Target,Block)));
         Sponge.getServer().getConsole().sendMessage(Text.of("Hrac " + SrcPlayer.getName() + " naucil hrace " + Target + " pouzivat blok " + Block));
-        tutorial.PermAction.get(line).set(1,null);
-        tutorial.PermAction.get(line).set(2,null);
 
+        tutorial.PermAction.get(line).set(1,"null");
+        tutorial.PermAction.get(line).set(2,"null");
     }
 
 
     private int GetPlayerLevel(Player player){
-        //Integer x = 20;
-        //player.get(Keys.EXPERIENCE_LEVEL).get()= x;
         return player.get(Keys.EXPERIENCE_LEVEL).get();
     }
 
@@ -76,11 +73,11 @@ public class TierSystem {
         if(!UserExist(UserName)){
             ArrayList<String> inner = new ArrayList<>();
             inner.add(0,UserName);
-            inner.add(1,null);
-            inner.add(2,null);
+            inner.add(1,"null");
+            inner.add(2,"null");
             tutorial.PermAction.add(inner);
 
-            player.sendMessage(Text.of("Byl jsi pridan na seznam"));
+            player.sendMessage(Text.of("Byl jsi pridan na seznam" ));
         }
 
         for (int i = 0; i < tutorial.PermAction.size(); i++) {
@@ -111,7 +108,7 @@ public class TierSystem {
         String Block_Type = Block_AllInfo[1];
         String Block_Info = null;
 
-        if (Block_AllInfo[2] != null) Block_Info = Block_AllInfo[2];
+        if (Block_AllInfo.length ==3) Block_Info = Block_AllInfo[2];
 
         if (player.getItemInHand(MAIN_HAND).toString().contains(tutorial.TierTool)) {
             if (player.hasPermission(tutorial.BlockPermission + "." + Block_Mod)){
@@ -149,21 +146,16 @@ public class TierSystem {
                 String Target_Player_Name = TargetPlayerName[1].split("'")[0];
                 TargetedPlayer = Sponge.getServer().getPlayer(Target_Player_Name).get();
 
-                //player.sendMessage(Text.of(tutorial.PermAction.size()));
-                //player.sendMessage(Text.of(tutorial.PermAction.get(0).size()));
 
                 int line = GetUserLine(player);
 
                 tutorial.PermAction.get(line).set(1, Target_Player_Name);
 
                 player.sendMessage(Text.of("Vybral jsi hráče: " + tutorial.PermAction.get(line).get(1)));
-                //player.sendMessage(Text.of(tutorial.PermAction.get(line).toString()));
+
 
                 TargetedPlayer.sendMessage(Text.of("Byl jsi vybrán hráčem " + player.getName() + "."));
                 learnPlayerBlock(player);
-
-                //String command ="gamemode 1 " + Target_Player_Name;
-                //
 
             }
         }
@@ -172,18 +164,21 @@ public class TierSystem {
 
 
     @Listener
-    public void getTargetBlockName (InteractBlockEvent.Secondary event, @First Player player){
+    public void getTargetBlockName (InteractBlockEvent.Primary event, @First Player player){
         int line;
         String TargetedBlock;
         String Block_AllInfo = event.getTargetBlock().getState().getName();
         String Block_Type = APPermBlock.Parse_Block_Name(Block_AllInfo);
         String Block_Mod = APPermBlock.Parse_Block_Mod(Block_AllInfo);
         String Block_Info = APPermBlock.Parse_Block_Info(Block_AllInfo);
+        //player.sendMessage(Text.of(String.format("Vybral jsi blok %s",Block_Mod)));
+        //player.sendMessage(Text.of(String.format("Vybral jsi blok %s",Block_Type)));
+        //player.sendMessage(Text.of(String.format("Vybral jsi blok %s",Block_Info)));
 
         TargetedBlock = Block_Mod + ":" + Block_Type + ":" + Block_Info;
+        if (Block_Info == null) TargetedBlock = Block_Mod + ":" + Block_Type;
 
         if(CanDo(player,TargetedBlock)) {
-            if (Block_Info == null) TargetedBlock = Block_Mod + ":" + Block_Type;
             line = GetUserLine(player);
             tutorial.PermAction.get(line).set(2, TargetedBlock);
             player.sendMessage(Text.of("Vybral jsi blok " + tutorial.PermAction.get(line).get(2)));
