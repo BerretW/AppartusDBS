@@ -26,7 +26,6 @@ public class APPermBlock {
         String Block_AllInfo = event.getTransactions().get(0).getFinal().getState().getName();
 
         if(tutorial.DetailDebuger.contains(player.getName())) return;
-        //if(tutorial.PermDebuger.contains(player.getName())) return;
         event.setCancelled(cantDO(player,Block_AllInfo));
 
     }
@@ -55,7 +54,7 @@ public class APPermBlock {
                     }
                 }
             if(tutorial.DetailDebuger.contains(player.getName())) {
-                player.sendMessage(Text.of(Block_AllInfo.toString()));
+                player.sendMessage(Text.of(Block_AllInfo));
                 player.sendMessage(Text.of(player.getItemInHand(MAIN_HAND).toString()));
                 return;
             }
@@ -71,39 +70,47 @@ public class APPermBlock {
 
         if(player.hasPermission(tutorial.BlockPermission + Block_Mod)) {
             if(player.hasPermission(tutorial.AllowPermission + Block_Mod)) return false;
-            if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":"+ Block_Type)) return false;
-            if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":"+ Block_Type + ":" + Block_Info)) return false;
+            if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":" + Block_Type)) return false;
+            if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info)) return false;
             player.sendMessage(Text.of(TextColors.RED,"Tvoje třída má zakázaný tento mod!"));
+
             if(player.hasPermission(tutorial.DebugerPermission)) {
                 player.sendMessage(Text.of("Pro povolení je třeba mít tyto permise:"));
-                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + ":" + Block_Mod + "  Nebo:"));
-                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + ":" + Block_Mod + ":" + Block_Type + "  Nebo:"));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + "  Nebo:"));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + ":" + Block_Type + "  Nebo:"));
                 player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + ":" + Block_Mod + ":" + Block_Type + ":" + Block_Info + "  Nebo:"));
             }
+
             return true;
         }
+
         if(player.hasPermission(tutorial.BlockPermission + Block_Mod + ":" + Block_Type)) {
             if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":"+ Block_Type)) return false;
             if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":"+ Block_Type + ":" + Block_Info)) return false;
             player.sendMessage(Text.of(TextColors.RED,"Tvoje třída má zakázané všechny varianty tohoto předmětu!"));
+
             if(player.hasPermission(tutorial.DebugerPermission)) {
-                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + ":" + Block_Mod + "  Nebo:"));
-                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + ":" + Block_Mod + ":" + Block_Type + "  Nebo:"));
-                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + ":" + Block_Mod + ":" + Block_Type + ":" + Block_Info + "  Nebo:"));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + "  Nebo:"));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + ":" + Block_Type + "  Nebo:"));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info + "  Nebo:"));
             }
+
             return true;
         }
+
         if(player.hasPermission(tutorial.BlockPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info)) {
             if(player.hasPermission(tutorial.AllowPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info)) return false;
             player.sendMessage(Text.of(TextColors.RED,"Tvoje třída má zakázaný tento předmět!"));
+
             if(player.hasPermission(tutorial.DebugerPermission)) {
-                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + ":" + Block_Mod + "  Nebo:"));
-                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + ":" + Block_Mod + ":" + Block_Type + "  Nebo:"));
-                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + ":" + Block_Mod + ":" + Block_Type + ":" + Block_Info + "  Nebo:"));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + "  Nebo:"));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + ":" + Block_Type + "  Nebo:"));
+                player.sendMessage(Text.of(TextColors.AQUA,tutorial.AllowPermission + Block_Mod + ":" + Block_Type + ":" + Block_Info + "  Nebo:"));
             }
+
             return true;
         }
-        //player.sendMessage(Text.of("Vyskytla se nejaka chyba"));
+
         return false;
     }
     public static String Parse_Block_Name(String BlockName){
