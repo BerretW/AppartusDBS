@@ -18,13 +18,12 @@ import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 
-@Plugin(id="appartusbds", name="Appartus Block Deny System", version = "0.1")
+@Plugin(id="appartusbds", name="Appartus Block Deny System", version = "0.2")
 
 public class tutorial {
 

@@ -1,6 +1,6 @@
 package Commands;
 
-import Events.APPermBlock;
+
 import net.appartus.Tutorial.tutorial;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
@@ -63,8 +63,6 @@ public class TierSystem {
         tutorial.runConsoleCommand("xp -"+tutorial.BlockLearnLevel +"L " + Target);
 
         SrcPlayer.sendMessage(Text.of(TextColors.BLUE,String.format(tutorial.LernBlockPlayer ,Target,Block,tutorial.BlockLearnLevel)));
-        //Sponge.getServer().getConsole().sendMessage(Text.of("Hrac " + SrcPlayer.getName() + " naucil hrace " + Target + " pouzivat blok " + Block));
-
         ClearSelection(line);
     }
 
@@ -151,15 +149,11 @@ public class TierSystem {
         String Block_Type = tutorial.Parse_Block_Name(Block_AllInfo);
         String Block_Mod = tutorial.Parse_Block_Mod(Block_AllInfo);
         String Block_Info = tutorial.Parse_Block_Info(Block_AllInfo);
-
-        //if(APPermBlock.cantDO(player,Block_AllInfo)) return;
-
-        //player.sendMessage(Text.of(String.format("Vybral jsi blok %s",Block_Mod)));
-        //player.sendMessage(Text.of(String.format("Vybral jsi blok %s",Block_Type)));
-        //player.sendMessage(Text.of(String.format("Vybral jsi blok %s",Block_Info)));
-
         TargetedBlock = Block_Mod + ":" + Block_Type + ":" + Block_Info;
         if (Block_Info == null) TargetedBlock = Block_Mod + ":" + Block_Type;
+
+        if (!(player.getItemInHand(MAIN_HAND).toString().contains(tutorial.TierTool))) return;
+
 
         if(!tutorial.cantDO(player,TargetedBlock,tutorial.DenyPermToLearn)) {
             line = GetUserLine(player);

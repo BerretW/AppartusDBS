@@ -1,6 +1,6 @@
 package Events;
 
-import Commands.TierSystem;
+
 import net.appartus.Tutorial.tutorial;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
