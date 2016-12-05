@@ -6,18 +6,28 @@ import Commands.TierSystem;
 import Commands.debuger;
 import Events.APPermBlock;
 import com.google.inject.Inject;
+import config.SettingManager;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -30,15 +40,16 @@ public class tutorial {
     public static List<String> PermDebuger = new ArrayList<>();
     public static List<String> DetailDebuger = new ArrayList<>();
     public static ArrayList<ArrayList<String>> PermAction = new ArrayList<>();
-    public static String DebugTool = "item.carrotOnAStick";
-    public static String TierTool = "item.shears";
-    public static String BlockPermission = "appartus.block.";
-    public static String AllowPermission = "appartus.allow.";
-    public static String DebugerPermission = "appartus.debuger";
-    public static String PermCommand = "pm users $user set permission $perm";
+
+    public static String DebugTool = "item.carrotOnAStick"; //
+    public static String TierTool = "item.shears"; //
+    public static String BlockPermission = "appartus.block."; //
+    public static String AllowPermission = "appartus.allow.";//
+    public static String DebugerPermission = "appartus.debuger";//
+    public static String PermCommand = "pm users $user set permission $perm";//
     public static String TierCommand = "pm users $user group add $tier";
-    public static int BlockLearnLevel = 10;
-    public static int TierLearnLevel = 10;
+    public static int BlockLearnLevel = 10;//
+    public static int TierLearnLevel = 10;//
 
     public static String DenyPerm = "Tvoje trida ma zakazany tento predmet";
     public static String DenyPermNeeded = "Pro povoleni tohoto predmetu je potreba jedna z techto permisi:";
@@ -52,13 +63,76 @@ public class tutorial {
     public static String NotSelectedBlock = "Nemáš vybraný blok";
     public static String LernBlockPlayer = "Naučil jsi hráče %s používat blok %s, stálo ho to %s Levelů";
 
+    @Inject
+    @DefaultConfig(sharedRoot = false)
+    private Path DefaultConfig;
+
+
 
     @Inject
-    Game game;
+    @DefaultConfig(sharedRoot = false)
+    private ConfigurationLoader<CommentedConfigurationNode> loader;
+
+    private ConfigurationNode config;
+
+
+    @Inject
+    @ConfigDir(sharedRoot = false)
+    private Path configDir;
+
 
     @Inject
     Logger logger;
 
+    private SettingManager settingManager;
+
+    @Listener
+    public void preInit(GamePreInitializationEvent event){
+        try {
+            config = loader.load();
+
+            if (!DefaultConfig.toFile().exists()) {
+                config.getNode("DebugTool").setValue("item.carrotOnAStick");
+                config.getNode("TierTool").setValue("item.shears");
+                config.getNode("DenyPermission").setValue("appartus.block.");
+                config.getNode("AllowPermission").setValue("appartus.allow.");
+                config.getNode("DebugerPermission").setValue("appartus.debuger");
+                config.getNode("PermissionCommand").setValue("pm users $user set permission $perm");
+                config.getNode("Level to learn Block").setValue(10);
+                config.getNode("Level to Learn Tier").setValue(30);
+
+
+
+                loader.save(config);
+            }
+        } catch(IOException e){
+            logger.warning("Error loading Default configuration");
+        }
+
+        settingManager = new SettingManager(this);
+    }
+
+    @Inject
+    Game game;
+
+
+    public void getConfig(){
+        config.getNode("DebugTool").getValue();
+    }
+
+
+
+    public Logger getLogger(){
+        return logger;
+    }
+
+    public Path getConfigDir(){
+        return configDir;
+    }
+
+    public SettingManager getSettingManager(){
+        return settingManager;
+    }
 
     @Listener
     public void onInit(GameInitializationEvent e){
