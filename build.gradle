@@ -4,6 +4,7 @@ version '1.0-SNAPSHOT'
 apply plugin: 'java'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -14,6 +15,5 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile "org.spongepowered:spongeapi:6.0.0-SNAPSHOT"
+    compile "org.spongepowered:spongeapi:5.1.0-SNAPSHOT"
 }
