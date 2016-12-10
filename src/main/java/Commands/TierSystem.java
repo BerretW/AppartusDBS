@@ -31,22 +31,23 @@ public class TierSystem {
         int line = GetUserLine(SrcPlayer);
         String Target = tutorial.PermAction.get(line).get(1);
         String Block = tutorial.PermAction.get(line).get(2);
+        //SrcPlayer.sendMessage(Text.of("%s,%s,%s", line,Target,Block));
 
         if(tutorial.PermAction.get(line).get(1) == null) {
             SrcPlayer.sendMessage(Text.of(TextColors.RED,tutorial.NotSelectedPlayer));
-            ClearSelection(line);
+            //ClearSelection(line);
             return;
         }
         if(tutorial.PermAction.get(line).get(2) == null) {
             SrcPlayer.sendMessage(Text.of(TextColors.RED,tutorial.NotSelectedBlock));
-            ClearSelection(line);
+            //ClearSelection(line);
             return;
         }
 
         Player TargetPlayer = Sponge.getServer().getPlayer(tutorial.PermAction.get(line).get(1)).get();
 
         if(TargetPlayer.hasPermission(tutorial.AllowPermission + Block)){
-            SrcPlayer.sendMessage(Text.of(TextColors.RED,tutorial.AlreadyKnow));
+            SrcPlayer.sendMessage(Text.of(TextColors.BLUE,tutorial.AlreadyKnow));
             return;
         }
 
@@ -132,8 +133,8 @@ public class TierSystem {
 
 
                 TargetedPlayer.sendMessage(Text.of(TextColors.AQUA,String.format( tutorial.SelectedByPlayer, player.getName())));
-                learnPlayerBlock(player);
-
+                //learnPlayerBlock(player);
+                event.setCancelled(true);
             }
         }
     }
@@ -159,7 +160,10 @@ public class TierSystem {
             line = GetUserLine(player);
             tutorial.PermAction.get(line).set(2, TargetedBlock);
             player.sendMessage(Text.of(TextColors.AQUA,String.format(tutorial.SelectedBlock, tutorial.PermAction.get(line).get(2))));
+            event.setCancelled(tutorial.PermAction.get(line).get(1) != null);
             learnPlayerBlock(player);
+        } else {
+            player.sendMessage(Text.of("Nemuzes"));
         }
     }
 }

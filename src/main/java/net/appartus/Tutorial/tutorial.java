@@ -51,7 +51,7 @@ public class tutorial {
     public static int BlockLearnLevel = 10;//
     public static int TierLearnLevel = 10;//
 
-    public static String DenyPerm = "Tvoje trida ma zakazany tento predmet";
+    public static String DenyPerm = "Ještě neumíš používat tento předmět, musíš se ho nejdříve naučit.";
     public static String DenyPermNeeded = "Pro povoleni tohoto predmetu je potreba jedna z techto permisi:";
     public static String DenyPermToLearn = "Nemas opravneni kohokoliv ucit s timto blokem";
     public static String SelectedPlayer = "Vybral jsi hráče: %s";
